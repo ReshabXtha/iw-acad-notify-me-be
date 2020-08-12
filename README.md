@@ -7,7 +7,7 @@
 * Fork and clone the repository
 * Activate your venv
 ```bash
-cd <cloned-repositofy>
+cd <cloned-repository>
 ```
 * Copy **env-example.py** and rename to **env.py**
 * Add your configuration in **env.py**
