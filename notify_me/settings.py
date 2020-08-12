@@ -1,5 +1,11 @@
 from notify_me.env import *
 
+AUTH_USER_MODEL = 'users.User'
+
+REST_FRAMEWORK = {
+    'NON_FIELD_ERRORS_KEY': 'error',
+}
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -7,6 +13,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'users',
 ]
 
 MIDDLEWARE = [
