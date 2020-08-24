@@ -14,5 +14,5 @@ class Announcement(models.Model):
 
 
 class Announcement_File(models.Model):
-    Announcement = models.ForeignKey(Announcement, on_delete=models.CASCADE, blank=True, null=True)
-    File = models.FileField(blank=True, upload_to='announcement/Media')
+    Announcement = models.ForeignKey(Announcement, on_delete=models.CASCADE, blank=True, null=True, related_name='file')
+    File = models.FileField(blank=True, upload_to='announcement/Media',null=True)
