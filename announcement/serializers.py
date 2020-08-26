@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.parsers import FileUploadParser
 
 from announcement.models import Announcement, Announcement_File
 
@@ -11,7 +10,7 @@ class FileModelSerializer(serializers.ModelSerializer):
 
 
 class AnnouncementModelSerializer(serializers.ModelSerializer):
-    file = FileModelSerializer(read_only=True, many=True)
+    file = FileModelSerializer(many=True, read_only=True)
 
     class Meta:
         model = Announcement
@@ -19,11 +18,17 @@ class AnnouncementModelSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         A1 = Announcement.objects.create(**validated_data)
-        Announcement_File.objects.create(Announcement=A1, **self.context)
+        for i in self.context:
+            print(i)
+            file = {
+                'File': i
+            }
+            Announcement_File.objects.create(Announcement=A1, **file)
         return A1
 
     def update(self, instance, validated_data):
         instance.Announce_msg = validated_data['Announce_msg']
         instance.Is_pinned = validated_data['Is_pinned']
+        instance.File_id = validated_data['File_id']
         instance.save()
         return instance

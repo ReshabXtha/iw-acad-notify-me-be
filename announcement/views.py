@@ -1,18 +1,16 @@
-from django.shortcuts import render
-
 # Create your views here.
-from rest_framework import status, viewsets
+from rest_framework import status
 from rest_framework.generics import CreateAPIView
-from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser, JSONParser
+from rest_framework.parsers import FileUploadParser, MultiPartParser, JSONParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import AnnouncementModelSerializer, FileModelSerializer
 
 from announcement.models import Announcement
+from .serializers import AnnouncementModelSerializer, FileModelSerializer
 
 
 class AnnouncementView(APIView):
-    parser_classes = (MultiPartParser, FormParser, FileUploadParser)
+    parser_classes = (JSONParser, MultiPartParser, FormParser, FileUploadParser)
 
     def get(self, request, *args, **kwargs):
         qs = Announcement.objects.all().prefetch_related('file')
@@ -21,14 +19,11 @@ class AnnouncementView(APIView):
 
     def post(self, request, *args, **kwargs):
         print(request.data)
-        file = request.data.get('file')
-        context = {
-            'File': file
-        }
-        serializer = AnnouncementModelSerializer(data=request.data, context=context)
+        image = dict(request.data.lists())['file']
+        serializer = AnnouncementModelSerializer(data=request.data, context=image)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({'status': 'ok post', 'result': serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({'status': 'ok post'}, status=status.HTTP_201_CREATED)
 
 
 class UpdateDeleteAnnouncement(APIView):
@@ -61,16 +56,3 @@ class UpdateDeleteAnnouncement(APIView):
 
 class UploadFile(CreateAPIView):
     serializer_class = FileModelSerializer
-
-
-class UploadAnnounce(APIView):
-    parser_class = (FileUploadParser,)
-
-    def post(self, request, *args, **kwargs):
-        file_serializer = FileModelSerializer(data=request.data)
-
-        if file_serializer.is_valid():
-            file_serializer.save()
-            return Response(file_serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
