@@ -1,10 +1,19 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
+
+from user_profile.models import UserProfile
+from user_profile.serializers import UserProfileSerializer
 from .models import User
 
+class UserSerializer(serializers.ModelSerializer):
+    # profile = UserProfileSerializer(many=False, read_only=True)
+    class Meta:
+        model = User
+        fields = ['id','username', 'email','is_superuser','is_active']
 
 class UserRegisterSerializer(serializers.ModelSerializer):
+    # profile = UserProfileSerializer(required=False)
     password = serializers.CharField(max_length=100, min_length=5, write_only=True)
 
     class Meta:
@@ -20,7 +29,17 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return attrs
     
     def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
+        try:
+            query = User.objects.get(is_superuser=True)
+        except User.DoesNotExist:
+            user = User.objects.create_superuser(**validated_data)
+        else:
+            user = User.objects.create_user(**validated_data)
+            UserProfile.objects.create(
+                user=user
+            )
+        print(UserProfile.objects.all())
+        return user
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=255)

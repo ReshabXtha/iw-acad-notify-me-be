@@ -1,15 +1,16 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import render
 
-from rest_framework import generics, status
+from rest_framework import generics, status, viewsets
 from rest_framework.response import Response
 
-from .serializers import UserRegisterSerializer, LoginSerializer
+from .serializers import UserRegisterSerializer, LoginSerializer, UserSerializer
 from .utils import Util
 import jwt
 from django.conf import settings
 
 USER = get_user_model()
+
 
 class UserRegisterView(generics.GenericAPIView):
 
@@ -52,3 +53,12 @@ class LoginAPIView(generics.GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class UserListView(generics.ListAPIView):
+    serializer_class = UserSerializer
+    queryset = USER.objects.all()
+
+class UserDestroyView(generics.DestroyAPIView):
+    # serializer_class = UserSerializer
+    queryset = USER.objects.all()
