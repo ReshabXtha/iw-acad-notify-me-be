@@ -18,7 +18,6 @@ class AnnouncementView(APIView):
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
-        print(request.data)
         image = dict(request.data.lists())['file']
         serializer = AnnouncementModelSerializer(data=request.data, context=image)
         serializer.is_valid(raise_exception=True)
@@ -54,5 +53,3 @@ class UpdateDeleteAnnouncement(APIView):
         return Response({'status': 'Deleted'}, status=status.HTTP_204_NO_CONTENT)
 
 
-class UploadFile(CreateAPIView):
-    serializer_class = FileModelSerializer

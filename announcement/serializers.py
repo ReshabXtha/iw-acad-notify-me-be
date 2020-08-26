@@ -19,7 +19,6 @@ class AnnouncementModelSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         A1 = Announcement.objects.create(**validated_data)
         for i in self.context:
-            print(i)
             file = {
                 'File': i
             }
