@@ -1,15 +1,17 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import render
 
-from rest_framework import generics, status
+from rest_framework import generics, status, viewsets
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .serializers import UserRegisterSerializer
+from .serializers import UserRegisterSerializer, LoginSerializer, UserSerializer
 from .utils import Util
 import jwt
 from django.conf import settings
 
 USER = get_user_model()
+
 
 class UserRegisterView(generics.GenericAPIView):
 
@@ -35,11 +37,47 @@ class VerifyEmail(generics.GenericAPIView):
         try:
             payload = jwt.decode(token, settings.SECRET_KEY)
             user = USER.objects.get(id=payload['user_id'])
-            if not user.is_active:
-                user.is_active = True
+            if not user.is_verified:
+                user.is_verified = True
                 user.save()
-            return Response({'message': 'Your account is successfully activated.'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Your email is successfully verified.'}, status=status.HTTP_200_OK)
         except jwt.ExpiredSignatureError as identifiers:
-            return Response({'error': 'Activation link expired.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Verification link expired.'}, status=status.HTTP_400_BAD_REQUEST)
         except jwt.exceptions.DecodeError as identifiers:
             return Response({'error': 'Invalid Token.'}, status=status.HTTP_400_BAD_REQUEST)
+
+class UserActivationView(APIView):
+    seriailzer_class = UserSerializer
+    queryset = USER.objects.all()
+    def get(self, request, pk, *args, **kwargs):
+        print(pk)
+        print(request.GET.get('pk'))
+        # user_id = request.GET['pk']
+
+        try:
+            user = USER.objects.get(pk=pk)
+            if not user.is_activated:
+                user.is_activated = True
+                user.save()
+            return Response({'message': 'Account successfully activated.'}, status=status.HTTP_200_OK)
+        except USER.DoesNotExist:
+            return Response({'error': 'User doesnot exists.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'OK'})
+
+
+class LoginAPIView(generics.GenericAPIView):
+    serializer_class = LoginSerializer 
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class UserListView(generics.ListAPIView):
+    serializer_class = UserSerializer
+    queryset = USER.objects.all()
+
+class UserDestroyView(generics.DestroyAPIView):
+    # serializer_class = UserSerializer
+    queryset = USER.objects.all()

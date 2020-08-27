@@ -1,10 +1,10 @@
-
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
     PermissionsMixin
     )
 from django.db import models
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class UserManager(BaseUserManager):
 
@@ -23,6 +23,7 @@ class UserManager(BaseUserManager):
             raise TypeError("Password should not be None")
         user = self.create_user(username, email, password)
         user.is_superuser = True
+        user.is_active = True
         user.is_staff = True
         user.save()
         return user
@@ -30,7 +31,8 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(max_length=255, unique=True)
-    is_active = models.BooleanField(default=False)
+    is_activated = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -42,3 +44,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+    def tokens(self):
+        refresh = RefreshToken.for_user(self)
+        return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }
