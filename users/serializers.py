@@ -30,9 +30,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         try:
-            query = User.objects.get(is_superuser=True)
+            query = User.objects.get(is_admin=True)
         except User.DoesNotExist:
-            user = User.objects.create_superuser(**validated_data)
+            user = User.objects.create_user(**validated_data)
         else:
             user = User.objects.create_user(**validated_data)
             UserProfile.objects.create(
@@ -53,8 +53,10 @@ class LoginSerializer(serializers.Serializer):
         user = authenticate(email=email, password=password)
         if user is None:
             raise AuthenticationFailed('Invalid credential')
+        if user.is_verifed:
+            raise AuthenticationFailed('Please verify your email to login.')
         if user.is_active is False:
-            raise AuthenticationFailed('Account is not active.')
+            raise AuthenticationFailed('Account is not active. Contact admin to activate your account.')
 
         return {
             'email': user.email,
