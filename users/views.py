@@ -46,6 +46,24 @@ class VerifyEmail(generics.GenericAPIView):
         except jwt.exceptions.DecodeError as identifiers:
             return Response({'error': 'Invalid Token.'}, status=status.HTTP_400_BAD_REQUEST)
 
+class UserActivationView(APIView):
+    seriailzer_class = UserSerializer
+    queryset = USER.objects.all()
+    def get(self, request, pk, *args, **kwargs):
+        print(pk)
+        print(request.GET.get('pk'))
+        # user_id = request.GET['pk']
+
+        try:
+            user = USER.objects.get(pk=pk)
+            if not user.is_activated:
+                user.is_activated = True
+                user.save()
+            return Response({'message': 'Account successfully activated.'}, status=status.HTTP_200_OK)
+        except USER.DoesNotExist:
+            return Response({'error': 'User doesnot exists.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'OK'})
+
 
 class LoginAPIView(generics.GenericAPIView):
     serializer_class = LoginSerializer 
