@@ -11,11 +11,6 @@ class ProfileRetrieveView(RetrieveAPIView):
     queryset = UserProfile.objects.all()
     # authentication_classes = [TokenAuthentication]
 
-class ProfileModelListAPIView(ListAPIView):
-    serializer_class = UserProfileSerializer
-    queryset = UserProfile.objects.all()
-
-
 class ProfileModelUpdateAPIView(UpdateAPIView):
     serializer_class = UserProfileSerializer
     queryset = UserProfile.objects.all()
