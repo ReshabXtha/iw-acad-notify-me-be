@@ -217,3 +217,5 @@ ENV/
 env.py
 .vscode/
 media/
+/migrations/
+

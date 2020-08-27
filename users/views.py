@@ -50,10 +50,6 @@ class UserActivationView(APIView):
     seriailzer_class = UserSerializer
     queryset = USER.objects.all()
     def get(self, request, pk, *args, **kwargs):
-        print(pk)
-        print(request.GET.get('pk'))
-        # user_id = request.GET['pk']
-
         try:
             user = USER.objects.get(pk=pk)
             if not user.is_activated:

@@ -7,10 +7,10 @@ from user_profile.serializers import UserProfileSerializer
 from .models import User
 
 class UserSerializer(serializers.ModelSerializer):
-    # profile = UserProfileSerializer(many=False, read_only=True)
+    profile = UserProfileSerializer(many=False, read_only=True)
     class Meta:
         model = User
-        fields = ['id','username', 'email','is_superuser','is_active']
+        fields = ['id','username', 'email','is_superuser','is_activated', 'profile']
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     # profile = UserProfileSerializer(required=False)
@@ -33,6 +33,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             query = User.objects.get(is_superuser=True)
         except User.DoesNotExist:
             user = User.objects.create_superuser(**validated_data)
+            UserProfile.objects.create(
+                user=user
+            )
         else:
             user = User.objects.create_user(**validated_data)
             UserProfile.objects.create(
