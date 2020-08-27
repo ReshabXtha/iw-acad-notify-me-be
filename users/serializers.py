@@ -30,9 +30,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         try:
-            query = User.objects.get(is_admin=True)
+            query = User.objects.get(is_superuser=True)
         except User.DoesNotExist:
-            user = User.objects.create_user(**validated_data)
+            user = User.objects.create_superuser(**validated_data)
         else:
             user = User.objects.create_user(**validated_data)
             UserProfile.objects.create(
@@ -40,7 +40,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             )
         print(UserProfile.objects.all())
         return user
-
+        
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=255)
     password = serializers.CharField(max_length=100, min_length=5, write_only=True)
@@ -48,15 +48,16 @@ class LoginSerializer(serializers.Serializer):
     tokens = serializers.CharField(read_only=True)
 
     def validate(self, attrs):
-        email = attrs.get('email', None)
-        password = attrs.get('password', None)
+        email = attrs.get('email', '')
+        password = attrs.get('password', '')
         user = authenticate(email=email, password=password)
+    
         if user is None:
             raise AuthenticationFailed('Invalid credential')
-        if user.is_verifed:
+        if not user.is_verified:
             raise AuthenticationFailed('Please verify your email to login.')
-        if user.is_active is False:
-            raise AuthenticationFailed('Account is not active. Contact admin to activate your account.')
+        if user.is_activated is False:
+            raise AuthenticationFailed('Account is not activated. Contact admin to activate your account.')
 
         return {
             'email': user.email,

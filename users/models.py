@@ -1,4 +1,3 @@
-
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -24,6 +23,7 @@ class UserManager(BaseUserManager):
             raise TypeError("Password should not be None")
         user = self.create_user(username, email, password)
         user.is_superuser = True
+        user.is_active = True
         user.is_staff = True
         user.save()
         return user
@@ -31,7 +31,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(max_length=255, unique=True)
-    is_active = models.BooleanField(default=False)
+    is_activated = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
