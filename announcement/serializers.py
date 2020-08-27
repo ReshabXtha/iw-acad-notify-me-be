@@ -1,15 +1,29 @@
 from rest_framework import serializers
 
-from announcement.models import Announcement
+from announcement.models import Announcement, Announcement_File
+
+
+class FileModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Announcement_File
+        fields = ['id', 'Announcement', 'File']
 
 
 class AnnouncementModelSerializer(serializers.ModelSerializer):
+    file = FileModelSerializer(many=True, read_only=True)
+
     class Meta:
         model = Announcement
-        fields = ['Announce_msg', 'Is_pinned', 'File_id', 'DateCreated']
+        fields = ['id', 'Announce_msg', 'Is_pinned', 'DateCreated', 'file']
 
     def create(self, validated_data):
-        return Announcement.objects.create(**validated_data)
+        A1 = Announcement.objects.create(**validated_data)
+        for i in self.context:
+            file = {
+                'File': i
+            }
+            Announcement_File.objects.create(Announcement=A1, **file)
+        return A1
 
     def update(self, instance, validated_data):
         instance.Announce_msg = validated_data['Announce_msg']
