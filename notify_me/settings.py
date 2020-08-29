@@ -23,6 +23,7 @@ INSTALLED_APPS = [
 
     'user_profile',
     'drf_yasg',
+    'event',
 
 ]
 

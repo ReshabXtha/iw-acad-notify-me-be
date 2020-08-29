@@ -6,11 +6,14 @@ from user_profile.models import UserProfile
 from user_profile.serializers import UserProfileSerializer
 from .models import User
 
+
 class UserSerializer(serializers.ModelSerializer):
     profile = UserProfileSerializer(many=False, read_only=True)
+
     class Meta:
         model = User
-        fields = ['id','username', 'email','is_superuser','is_activated', 'profile']
+        fields = ['id', 'username', 'email', 'is_superuser', 'is_activated', 'profile']
+
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     # profile = UserProfileSerializer(required=False)
@@ -22,12 +25,12 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         email = attrs.get('email', '')
-        username = attrs.get('username','')
+        username = attrs.get('username', '')
 
         if not username.isalnum():
             raise serializers.ValidationError('The username should only contain alphanumeric characters')
         return attrs
-    
+
     def create(self, validated_data):
         try:
             query = User.objects.get(is_superuser=True)
@@ -43,7 +46,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             )
         print(UserProfile.objects.all())
         return user
-        
+
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=255)
     password = serializers.CharField(max_length=100, min_length=5, write_only=True)
@@ -54,7 +58,7 @@ class LoginSerializer(serializers.Serializer):
         email = attrs.get('email', '')
         password = attrs.get('password', '')
         user = authenticate(email=email, password=password)
-    
+
         if user is None:
             raise AuthenticationFailed('Invalid credential')
         if not user.is_verified:
