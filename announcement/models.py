@@ -19,3 +19,12 @@ class Announcement_File(models.Model):
 
     def __str__(self):
         return str(self.File)
+
+
+class AnnouncementReply(models.Model):
+    Announcement_id = models.ForeignKey(Announcement, on_delete=models.CASCADE, blank=True, null=True,
+                                        related_name='reply')
+    Reply = models.TextField()
+
+    def __str__(self):
+        return str(self.Reply)

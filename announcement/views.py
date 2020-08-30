@@ -1,19 +1,19 @@
 # Create your views here.
 from rest_framework import status
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.parsers import FileUploadParser, MultiPartParser, JSONParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from announcement.models import Announcement
-from .serializers import AnnouncementModelSerializer, FileModelSerializer
+from announcement.models import Announcement, AnnouncementReply
+from .serializers import AnnouncementModelSerializer, FileModelSerializer, ReplyModelSerializer
 
 
 class AnnouncementView(APIView):
     parser_classes = (JSONParser, MultiPartParser, FormParser, FileUploadParser)
 
     def get(self, request, *args, **kwargs):
-        qs = Announcement.objects.all().prefetch_related('file')
+        qs = Announcement.objects.all().prefetch_related('file', 'reply')
         serializer = AnnouncementModelSerializer(instance=qs, many=True)
         return Response(serializer.data)
 
@@ -53,3 +53,10 @@ class UpdateDeleteAnnouncement(APIView):
         return Response({'status': 'Deleted'}, status=status.HTTP_204_NO_CONTENT)
 
 
+class AnnouncementReplyCreate(CreateAPIView):
+    serializer_class = ReplyModelSerializer
+
+
+class AnnouncementReplyModify(RetrieveUpdateDestroyAPIView):
+    queryset = AnnouncementReply.objects.all()
+    serializer_class = ReplyModelSerializer

@@ -1,6 +1,12 @@
 from rest_framework import serializers
 
-from announcement.models import Announcement, Announcement_File
+from announcement.models import Announcement, Announcement_File, AnnouncementReply
+
+
+class ReplyModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnnouncementReply
+        fields = ['id','Announcement_id', 'Reply']
 
 
 class FileModelSerializer(serializers.ModelSerializer):
@@ -11,10 +17,11 @@ class FileModelSerializer(serializers.ModelSerializer):
 
 class AnnouncementModelSerializer(serializers.ModelSerializer):
     file = FileModelSerializer(many=True, read_only=True)
+    reply = ReplyModelSerializer(many=True, read_only=True)
 
     class Meta:
         model = Announcement
-        fields = ['id', 'Announce_msg', 'Is_pinned', 'DateCreated', 'file']
+        fields = ['id', 'Announce_msg', 'Is_pinned', 'DateCreated', 'file', 'reply']
 
     def create(self, validated_data):
         A1 = Announcement.objects.create(**validated_data)
